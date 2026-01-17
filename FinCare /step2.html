@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FinCARE - Income Details</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGeRJkrzIjtM51OFu8_58nAlxAof0QK98",
+            authDomain: "fincare-project-4015e.firebaseapp.com",
+            databaseURL: "https://fincare-project-4015e-default-rtdb.firebaseio.com",
+            projectId: "fincare-project-4015e",
+            storageBucket: "fincare-project-4015e.firebasestorage.app",
+            messagingSenderId: "415209492661",
+            appId: "1:415209492661:web:683ea15a1e177fb4c52efc",
+            measurementId: "G-DNG4ZMXG1J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Security Check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "login.html";
+        });
+
+        async function saveIncomeData() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.disabled = true;
+            nextBtn.innerText = "Saving...";
+
+            // Capture data from inputs
+            const bankBalance = document.getElementById('bankBalance').value;
+            const monthlyIncome = document.getElementById('monthlyIncome').value;
+            const source = document.querySelector('input[name="source"]:checked').value;
+            const frequency = document.querySelector('input[name="frequency"]:checked').value;
+
+            const incomeData = {
+                financials: {
+                    bankBalance: parseFloat(bankBalance) || 0,
+                    monthlyIncome: parseFloat(monthlyIncome) || 0,
+                    incomeSource: source,
+                    incomeFrequency: frequency
+                },
+                currentStep: 2,
+                lastUpdated: new Date()
+            };
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                await updateDoc(userRef, incomeData);
+                window.location.href = "step3.html";
+            } catch (error) {
+                console.error("Error saving income:", error);
+                alert("Failed to save data. Please try again.");
+                nextBtn.disabled = false;
+                nextBtn.innerText = "Next";
+            }
+        }
+        window.saveIncomeData = saveIncomeData;
+    </script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2cc0d",
+                        "background-dark": "#000000",
+                        "surface-dark": "#0c0c0c",
+                        "border-dark": "#1a1a1a",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "1rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .ios-blur {
+                backdrop-filter: blur(25px);
+                -webkit-backdrop-filter: blur(25px);
+            }
+            .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background-dark min-h-screen text-white overflow-hidden font-display">
+<div class="relative flex h-screen w-full flex-col max-w-md mx-auto bg-black border-x border-white/5">
+    <div class="relative z-10 flex flex-col h-full">
+        <div class="flex items-center p-4 pb-2 justify-between">
+            <a class="text-white flex size-12 shrink-0 items-center cursor-pointer active:opacity-50 transition-opacity" href="step1.html">
+                <span class="material-symbols-outlined text-2xl">arrow_back_ios_new</span>
+            </a>
+            <h2 class="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] flex-1 text-center pr-12">Step 2 of 7</h2>
+        </div>
+
+        <div class="flex flex-col gap-3 p-6 pt-2">
+            <div class="flex gap-6 justify-between items-end">
+                <p class="text-white text-lg font-extrabold tracking-tight">Income</p>
+                <p class="text-primary text-sm font-black tracking-tighter">28%</p>
+            </div>
+            <div class="rounded-full bg-white/5 h-1.5 overflow-hidden">
+                <div class="h-full rounded-full bg-primary shadow-[0_0_15px_rgba(242,204,13,0.5)] transition-all duration-700" style="width: 28.5%;"></div>
+            </div>
+        </div>
+
+        <div class="px-6 py-4">
+            <h1 class="text-white text-[32px] font-extrabold leading-[1.1] tracking-tight">Income Details</h1>
+            <p class="text-white/40 mt-3 text-[15px] font-medium leading-relaxed">Let's map out your current cash flow to build your AI model.</p>
+        </div>
+
+        <div class="flex-grow overflow-y-auto px-6 py-4 hide-scrollbar space-y-6">
+            <div class="flex flex-col gap-2.5">
+                <label class="text-white/50 text-[10px] uppercase tracking-[0.15em] font-extrabold ml-1">Total Bank Balance</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none text-primary">
+                        <span class="text-xl font-bold">₹</span>
+                    </div>
+                    <input id="bankBalance" class="form-input flex w-full rounded-2xl text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/5 bg-white/[0.05] h-[72px] pl-12 pr-6 text-2xl font-bold placeholder:text-white/10 transition-all" inputmode="numeric" placeholder="0" type="number"/>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-2.5">
+                <label class="text-white/50 text-[10px] uppercase tracking-[0.15em] font-extrabold ml-1">Monthly Income</label>
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-6 pointer-events-none text-primary">
+                        <span class="text-xl font-bold">₹</span>
+                    </div>
+                    <input id="monthlyIncome" class="form-input flex w-full rounded-2xl text-white focus:outline-0 focus:ring-2 focus:ring-primary border border-white/5 bg-white/[0.05] h-[72px] pl-12 pr-6 text-2xl font-bold placeholder:text-white/10 transition-all" inputmode="numeric" placeholder="0" type="number"/>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <label class="text-white/50 text-[10px] uppercase tracking-[0.15em] font-extrabold ml-1">Other Source</label>
+                <div class="flex flex-wrap gap-2">
+                    <label class="cursor-pointer">
+                        <input checked class="peer hidden" name="source" type="radio" value="none"/>
+                        <div class="px-5 py-3 rounded-xl border border-white/5 bg-white/[0.05] text-sm font-bold text-white/40 peer-checked:border-2 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all active:scale-95">None</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input class="peer hidden" name="source" type="radio" value="freelance"/>
+                        <div class="px-5 py-3 rounded-xl border border-white/5 bg-white/[0.05] text-sm font-bold text-white/40 peer-checked:border-2 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all active:scale-95">Freelance</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input class="peer hidden" name="source" type="radio" value="side-income"/>
+                        <div class="px-5 py-3 rounded-xl border border-white/5 bg-white/[0.05] text-sm font-bold text-white/40 peer-checked:border-2 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all active:scale-95">Side income</div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <label class="text-white/50 text-[10px] uppercase tracking-[0.15em] font-extrabold ml-1">Frequency</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <label class="cursor-pointer">
+                        <input class="peer hidden" name="frequency" type="radio" value="irregular"/>
+                        <div class="flex items-center justify-center h-14 rounded-xl border border-white/5 bg-white/[0.05] text-sm font-bold text-white/40 peer-checked:border-2 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all active:scale-95">Irregular</div>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input checked class="peer hidden" name="frequency" type="radio" value="monthly"/>
+                        <div class="flex items-center justify-center h-14 rounded-xl border border-white/5 bg-white/[0.05] text-sm font-bold text-white/40 peer-checked:border-2 peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary transition-all active:scale-95">Monthly</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="px-6 pb-8 pt-4 flex flex-col gap-6 bg-black">
+            <div class="flex items-center justify-center gap-2 text-white/20 bg-white/[0.02] self-center px-5 py-2.5 rounded-full border border-white/5">
+                <span class="material-symbols-outlined text-sm">encrypted</span>
+                <p class="text-[9px] font-black uppercase tracking-[0.15em]">Secure 256-bit encryption</p>
+            </div>
+            <button id="nextBtn" onclick="saveIncomeData()" class="w-full bg-primary hover:brightness-110 text-black h-16 rounded-2xl font-black text-lg flex items-center justify-center gap-3 shadow-[0_20px_40px_-10px_rgba(242,204,13,0.4)] active:scale-[0.98] transition-all">
+                <span>Next</span>
+                <span class="material-symbols-outlined font-bold">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+</div>
+</body>
+</html>
