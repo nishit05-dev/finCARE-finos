@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Fixed Obligations - FinCARE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGeRJkrzIjtM51OFu8_58nAlxAof0QK98",
+        authDomain: "fincare-project-4015e.firebaseapp.com",
+        projectId: "fincare-project-4015e",
+        storageBucket: "fincare-project-4015e.firebasestorage.app",
+        messagingSenderId: "415209492661",
+        appId: "1:415209492661:web:683ea15a1e177fb4c52efc",
+        measurementId: "G-DNG4ZMXG1J"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Fetching data from Firestore
+            const userRef = doc(db, "users", user.uid);
+            const docSnap = await getDoc(userRef);
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                const obligations = data.obligations || {};
+
+                // Individual Items Update
+                const emi = obligations.emi?.amount || 0;
+                const bills = obligations.bills?.amount || 0;
+                const insurance = obligations.insurance?.amount || 0;
+                const mediclaim = obligations.mediclaim?.amount || 0;
+                const other = obligations.other?.amount || 0;
+
+                document.getElementById('emi-val').innerText = '₹' + emi.toLocaleString('en-IN');
+                document.getElementById('bills-val').innerText = '₹' + bills.toLocaleString('en-IN');
+                document.getElementById('insurance-val').innerText = '₹' + insurance.toLocaleString('en-IN');
+                document.getElementById('mediclaim-val').innerText = '₹' + mediclaim.toLocaleString('en-IN');
+                document.getElementById('other-val').innerText = '₹' + other.toLocaleString('en-IN');
+
+                // Total Monthly Commitment Calculation
+                const total = emi + bills + insurance + mediclaim + other;
+                document.getElementById('total-obligations').innerText = '₹' + total.toLocaleString('en-IN');
+                
+                // Weekly Optimization Insight
+                const weekly = Math.round(total / 4);
+                document.getElementById('weekly-insight').innerText = `Setting aside ₹${weekly.toLocaleString('en-IN')} weekly would ensure all fixed obligations are met without stressing your cash flow.`;
+                
+            }
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+</script>
+
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EAB308",
+                        "background-dark": "#000000",
+                        "accent-green": "#4ADE80",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "12px",
+                    },
+                },
+            },
+        };
+    </script>
+<style type="text/tailwindcss">
+        :root {
+            --ios-bg: #000000;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--ios-bg);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ios-notch {
+            height: 44px;
+        }
+    </style>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+  </head>
+<body class="bg-black text-white antialiased">
+<div class="max-w-[430px] h-[932px] mx-auto overflow-hidden relative shadow-2xl bg-black border-x border-gray-900">
+<div class="ios-notch relative z-20 flex justify-between items-end px-8 pb-1">
+<span class="text-xs font-semibold">11:07</span>
+<div class="flex space-x-1.5 items-center">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[16px]">wifi</span>
+<span class="material-symbols-outlined text-[16px]">battery_full</span>
+</div>
+</div>
+<header class="relative z-20 px-6 py-4 flex items-center">
+<a class="w-10 h-10 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined text-white">chevron_left</span>
+</a>
+<div class="flex-1 text-center pr-10">
+<h1 class="text-lg font-semibold tracking-tight text-white">Fixed Obligations</h1>
+</div>
+</header>
+<main class="relative z-10 px-6 pt-8 h-[calc(100%-180px)] overflow-y-auto no-scrollbar">
+<div class="text-center mb-10">
+<p class="text-slate-400 text-sm font-medium mb-1 uppercase tracking-[0.1em]">Total Monthly Commitment</p>
+<h2 id="total-obligations" class="text-5xl font-bold tracking-tight text-white">₹0</h2>
+<div class="mt-4 inline-flex items-center space-x-2 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+<span class="material-symbols-outlined text-accent-green text-sm">event_repeat</span>
+<span class="text-[11px] text-slate-300 font-medium">Auto-debit tracking active</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-blue-400">account_balance</span>
+</div>
+<div>
+<h4 class="font-semibold text-sm">EMIs</h4>
+<p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Monthly Installment</p>
+</div>
+</div>
+<div class="text-right">
+<p id="emi-val" class="font-bold text-base">₹0</p>
+<p class="text-[10px] text-accent-green font-medium">Active</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-orange-400">receipt_long</span>
+</div>
+<div>
+<h4 class="font-semibold text-sm">Bills</h4>
+<p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Utilities & Rent</p>
+</div>
+</div>
+<div class="text-right">
+<p id="bills-val" class="font-bold text-base text-white">₹0</p>
+<p class="text-[10px] text-primary font-medium">Monthly</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-purple-400">shield</span>
+</div>
+<div>
+<h4 class="font-semibold text-sm">Insurance</h4>
+<p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Premiums</p>
+</div>
+</div>
+<div class="text-right">
+<p id="insurance-val" class="font-bold text-base text-white">₹0</p>
+<p class="text-[10px] text-slate-500 font-medium">Upcoming</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center justify-between">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-red-400">medical_services</span>
+</div>
+<div>
+<h4 class="font-semibold text-sm">Mediclaim</h4>
+<p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Health Cover</p>
+</div>
+</div>
+<div class="text-right">
+<p id="mediclaim-val" class="font-bold text-base text-white">₹0</p>
+<p class="text-[10px] text-slate-500 font-medium">Upcoming</p>
+</div>
+</div>
+<div class="glass-card p-4 rounded-2xl flex items-center justify-between opacity-60">
+<div class="flex items-center space-x-4">
+<div class="w-12 h-12 rounded-xl bg-slate-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-slate-400">more_horiz</span>
+</div>
+<div>
+<h4 class="font-semibold text-sm">Other</h4>
+<p class="text-[11px] text-slate-500 uppercase tracking-wider font-medium">Misc Dues</p>
+</div>
+</div>
+<div class="text-right">
+<p id="other-val" class="font-bold text-base text-white">₹0</p>
+</div>
+</div>
+</div>
+
+<div class="mt-8 bg-primary/5 border border-primary/20 p-5 rounded-3xl flex items-start space-x-4 mb-10">
+<div class="bg-primary/10 p-2 rounded-xl">
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+</div>
+<div>
+<h4 class="text-primary font-semibold text-sm">Payment Optimization</h4>
+<p id="weekly-insight" class="text-xs text-slate-300 mt-1 leading-relaxed">
+    Analyzing your obligations...
+</p>
+</div>
+</div>
+</main>
+<nav class="absolute bottom-0 left-0 right-0 z-30 px-8 pt-4 pb-8 glass-card border-t border-white/5 rounded-t-[32px]">
+<div class="flex justify-between items-center">
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="dashboard.html">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="text-[10px] font-medium">Insights</span>
+</a>
+<div class="relative -top-6">
+<button class="w-14 h-14 bg-primary text-black rounded-2xl shadow-xl shadow-primary/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl font-bold">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center space-y-1 text-primary" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="text-[10px] font-bold">Wallet</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="profile.html">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/20 rounded-full z-40"></div>
+</div>
+</body></html>
