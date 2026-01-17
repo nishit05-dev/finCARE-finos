@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinCARE - AI Agentic Insights</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<script type="importmap">
+  {
+    "imports": {
+      "@google/generative-ai": "https://esm.run/@google/generative-ai"
+    }
+  }
+</script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { GoogleGenerativeAI } from "@google/generative-ai";
+
+    const GEMINI_API_KEY = "AIzaSyBG8lVFcK653qa4uBu4radTEb1ZHlmBdHc"; 
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGeRJkrzIjtM51OFu8_58nAlxAof0QK98",
+        authDomain: "fincare-project-4015e.firebaseapp.com",
+        projectId: "fincare-project-4015e",
+        storageBucket: "fincare-project-4015e.firebasestorage.app",
+        messagingSenderId: "415209492661",
+        appId: "1:415209492661:web:683ea15a1e177fb4c52efc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    let globalData = null;
+    let userId = null;
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userId = user.uid; // Global store for automation
+            const userRef = doc(db, "users", user.uid);
+            onSnapshot(userRef, async (docSnap) => {
+                let data = docSnap.exists() ? docSnap.data() : { financials: { bankBalance: 5000, monthlyIncome: 25000 }, safetyNet: { monthlyFixSaving: 2000 } };
+                globalData = data;
+                await runAgenticAnalysis(data);
+            });
+        } else { window.location.href = "login.html"; }
+    });
+
+    async function runAgenticAnalysis(data) {
+        const bal = data.financials?.bankBalance || 0;
+        const inc = data.financials?.monthlyIncome || 0;
+        try {
+            const architectPrompt = `User Balance: ₹${bal}, Income: ₹${inc}. You are a Finance Agent. Give 1 sharp investment advice (10 words).`;
+            const res1 = await model.generateContent(architectPrompt);
+            document.getElementById('agent-strategy').innerText = res1.response.text();
+
+            const riskPrompt = `Balance: ₹${bal}. Bills: ${JSON.stringify(data.obligations || {})}. Risk status in 8 words.`;
+            const res2 = await model.generateContent(riskPrompt);
+            document.getElementById('agent-risk').innerText = res2.response.text();
+
+            const perc = inc > 0 ? Math.min(Math.round(((data.safetyNet?.monthlyFixSaving || 0) / inc) * 100 * 5), 100) : 15;
+            document.getElementById('efficiency-label').innerText = `${perc}% Optimized`;
+            document.getElementById('efficiency-bar').style.width = `${perc}%`;
+        } catch (e) {
+            document.getElementById('agent-strategy').innerText = "Diversify 20% into index funds for growth.";
+        }
+    }
+
+    window.toggleChat = () => document.getElementById('chat-p').classList.toggle('translate-y-full');
+
+    window.askAgent = async () => {
+        const q = document.getElementById('q').value;
+        const box = document.getElementById('chat-b');
+        if(!q || !userId) return;
+        
+        box.innerHTML += `<p class="text-right text-primary text-xs mb-2 font-bold">${q}</p>`;
+        document.getElementById('q').value = "";
+        
+        const commandPrompt = `
+            User Data: Balance ₹${globalData.financials?.bankBalance}, Income ₹${globalData.financials?.monthlyIncome}, Savings ₹${globalData.safetyNet?.monthlyFixSaving}.
+            User asked: "${q}"
+            Task:
+            1. If user wants to change a value, reply ONLY in JSON: {"action": "UPDATE", "field": "fieldName", "value": number, "reply": "Confirm msg"}.
+            Fields: 'monthlyIncome', 'bankBalance', 'monthlyFixSaving', 'monthlyFixDeduction'.
+            2. Otherwise: {"action": "CHAT", "reply": "Your answer"}.
+            Keep replies under 10 words.
+        `;
+
+        try {
+            const result = await model.generateContent(commandPrompt);
+            const responseText = result.response.text();
+            const actionData = JSON.parse(responseText.substring(responseText.indexOf('{'), responseText.lastIndexOf('}') + 1));
+
+            if (actionData.action === "UPDATE") {
+                const userRef = doc(db, "users", userId); // Use global userId
+                let updatePayload = {};
+                if (actionData.field === 'monthlyFixSaving') updatePayload = { "safetyNet.monthlyFixSaving": actionData.value };
+                else if (actionData.field === 'monthlyIncome') updatePayload = { "financials.monthlyIncome": actionData.value };
+                else if (actionData.field === 'bankBalance') updatePayload = { "financials.bankBalance": actionData.value };
+                else updatePayload = { [actionData.field]: actionData.value };
+
+                await updateDoc(userRef, updatePayload);
+                box.innerHTML += `<p class="text-left text-green-400 text-xs mb-4 bg-green-500/10 p-3 rounded-xl border border-green-500/20">✓ System Synced: ${actionData.reply}</p>`;
+            } else {
+                box.innerHTML += `<p class="text-left text-white/60 text-xs mb-4 bg-white/5 p-3 rounded-lg border border-white/5">${actionData.reply}</p>`;
+            }
+        } catch (e) {
+            box.innerHTML += `<p class="text-left text-red-400 text-xs mb-4 p-3 bg-red-500/10 rounded-lg">Try: "Change income to 30000"</p>`;
+        }
+        box.scrollTop = box.scrollHeight;
+    };
+</script>
+
+<style type="text/tailwindcss">
+    body { background-color: #000; color: white; font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+    .glow { box-shadow: 0 0 15px rgba(242, 204, 13, 0.2); }
+    /* Triangle Shape CSS */
+    .triangle-arrow {
+        width: 0;
+        height: 0;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 15px solid #f2cc0d;
+    }
+</style>
+</head>
+<body class="overflow-hidden">
+<div class="max-w-[430px] h-[932px] mx-auto relative flex flex-col border-x border-white/10 bg-black">
+    
+    <header class="p-8 flex justify-between items-center">
+        <a href="dashboard.html" class="material-symbols-outlined text-white/50">arrow_back_ios</a>
+        <div class="text-center">
+            <p class="text-[8px] font-black tracking-[.3em] text-primary/60 uppercase">Agentic Engine</p>
+            <h1 class="text-sm font-bold flex items-center gap-2 mt-1">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> SYSTEM ACTIVE
+            </h1>
+        </div>
+        <span class="material-symbols-outlined text-primary">sensors</span>
+    </header>
+
+    <main class="flex-1 px-6 overflow-y-auto no-scrollbar pb-32">
+        <div onclick="toggleChat()" class="glass p-6 rounded-[2rem] mb-6 border-l-4 border-primary cursor-pointer hover:scale-[1.02] transition-all">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Agentic AI Hub</h3>
+                    <p class="text-lg font-bold text-white italic tracking-tight">Tap to Command AI</p>
+                </div>
+                <span class="material-symbols-outlined text-primary animate-pulse">smart_toy</span>
+            </div>
+            <p class="text-[10px] text-white/40 mt-3 uppercase tracking-tighter">AI can update your Income, Savings & Goals</p>
+        </div>
+
+        <div class="glass p-6 rounded-[2rem] mb-6 border-l-4 border-white/20 text-white">
+            <h3 class="text-[9px] font-black text-white/30 uppercase mb-3 tracking-widest">Growth Command</h3>
+            <p id="agent-strategy" class="text-lg font-bold">Analyzing DNA...</p>
+        </div>
+
+        <div class="glass p-6 rounded-[2rem] mb-6 border-l-4 border-red-500/50">
+            <h3 class="text-[9px] font-black text-white/30 uppercase mb-3 tracking-widest text-white/30">Risk Sentinel</h3>
+            <p id="agent-risk" class="text-sm font-medium text-white/70 italic">Scanning database...</p>
+        </div>
+
+        <div class="glass p-8 rounded-[2.5rem] glow">
+            <p class="text-[9px] font-black text-primary uppercase mb-2">Efficiency Rating</p>
+            <h2 id="efficiency-label" class="text-4xl font-black mb-4 italic text-white">0% Optimized</h2>
+            <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                <div id="efficiency-bar" class="h-full bg-primary transition-all duration-1000" style="width: 0%"></div>
+            </div>
+        </div>
+    </main>
+
+    <button onclick="toggleChat()" class="fixed bottom-32 right-8 w-14 h-14 bg-primary rounded-full flex items-center justify-center glow z-50">
+        <span class="material-symbols-outlined text-black font-black">robot_2</span>
+    </button>
+
+    <div id="chat-p" class="fixed inset-x-0 bottom-0 h-[65%] glass rounded-t-[3rem] z-[60] transform translate-y-full transition-transform duration-500 flex flex-col border-t border-white/10">
+        <div class="p-6 border-b border-white/5 flex justify-between items-center">
+            <span class="text-[10px] font-black text-primary uppercase italic">Neural Command Center</span>
+            <button onclick="toggleChat()" class="material-symbols-outlined text-white/20">close</button>
+        </div>
+        <div id="chat-b" class="flex-1 p-6 overflow-y-auto no-scrollbar">
+            <p class="text-[10px] text-center text-white/20 font-black uppercase tracking-[0.3em] mb-4">Autonomous Control Active</p>
+        </div>
+        
+        <div class="p-6 pb-10 flex gap-3 bg-black/40 items-center">
+            <input id="q" type="text" placeholder="e.g. Set income to 40000" class="flex-1 bg-white/5 border-none rounded-xl text-xs text-white px-4 h-12 focus:ring-1 focus:ring-primary">
+            <button onclick="askAgent()" class="w-12 h-12 flex items-center justify-center active:scale-95 transition-transform">
+                <div class="triangle-arrow"></div>
+            </button>
+        </div>
+    </div>
+
+    <nav class="p-6 pb-10 glass border-t border-white/5 rounded-t-[2rem] flex justify-between items-center">
+        <a href="dashboard.html" class="material-symbols-outlined text-white/20">grid_view</a>
+        <span class="material-symbols-outlined text-primary fill-1">analytics</span>
+        <a href="transactions.html" class="material-symbols-outlined text-white/20">receipt_long</a>
+        <a href="profile.html" class="material-symbols-outlined text-white/20">person</a>
+    </nav>
+</div>
+</body></html>
