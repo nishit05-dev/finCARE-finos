@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Spendable Income Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDGeRJkrzIjtM51OFu8_58nAlxAof0QK98",
+        authDomain: "fincare-project-4015e.firebaseapp.com",
+        projectId: "fincare-project-4015e",
+        storageBucket: "fincare-project-4015e.firebasestorage.app",
+        messagingSenderId: "415209492661",
+        appId: "1:415209492661:web:683ea15a1e177fb4c52efc",
+        measurementId: "G-DNG4ZMXG1J"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const userRef = doc(db, "users", user.uid);
+            onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    
+                    // 1. Fetching all components for calculation
+                    const income = parseFloat(data.financials?.monthlyIncome) || 0;
+                    
+                    let fixed = 0;
+                    if(data.obligations) {
+                        Object.values(data.obligations).forEach(val => fixed += (parseFloat(val.amount) || 0));
+                    }
+                    
+                    const goals = parseFloat(data.monthlyFixDeduction) || 0;
+                    const savings = parseFloat(data.safetyNet?.monthlyFixSaving) || 0;
+
+                    // 2. ASLI CALCULATION: Wahi jo Dashboard par dikh raha hai
+                    const spendable = income - fixed - goals - savings;
+                    
+                    // 3. Update UI
+                    document.getElementById('main-balance').innerText = '₹' + (spendable > 0 ? spendable : 0).toLocaleString('en-IN');
+                }
+            });
+        } else { window.location.href = "login.html"; }
+    });
+</script>
+
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#EAB308",
+                        "background-dark": "#000000",
+                        "accent-green": "#4ADE80",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                    },
+                },
+            },
+        };
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body {
+                font-family: 'Inter', sans-serif;
+                @apply bg-black text-white antialiased;
+            }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .geometric-bg { background-color: #000000; position: relative; overflow: hidden; }
+        .shape { position: absolute; background: linear-gradient(135deg, rgba(31, 41, 55, 0.3) 0%, rgba(0, 0, 0, 0) 100%); border: 1px solid rgba(255, 255, 255, 0.03); }
+        .shape-1 { width: 300px; height: 300px; top: -50px; right: -100px; transform: rotate(15deg); }
+        .shape-2 { width: 400px; height: 400px; bottom: -150px; left: -150px; transform: rotate(-25deg); }
+    </style>
+</head>
+<body class="bg-black">
+<div class="max-w-[430px] h-[932px] mx-auto overflow-hidden relative shadow-2xl bg-black geometric-bg border-x border-gray-900">
+<div class="absolute inset-0 z-0 pointer-events-none">
+<div class="shape shape-1 rounded-[60px]"></div>
+<div class="shape shape-2 rounded-[80px]"></div>
+</div>
+
+<div class="relative z-20 h-11 flex justify-between items-end px-8 pb-1 text-white opacity-60">
+<span class="text-[14px] font-semibold">9:41</span>
+<div class="flex space-x-1.5 items-center">
+<span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined text-[16px]">wifi</span>
+<span class="material-symbols-outlined text-[16px]">battery_full</span>
+</div>
+</div>
+
+<header class="relative z-20 px-6 py-4 flex items-center">
+<a class="w-10 h-10 flex items-center justify-center rounded-full glass-card hover:bg-white/10 transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined text-white">chevron_left</span>
+</a>
+<h1 class="flex-1 text-center text-lg font-semibold tracking-tight mr-10 uppercase tracking-[0.2em]">
+                Wallet
+            </h1>
+</header>
+
+<main class="relative z-10 px-6 pt-20 h-[calc(100%-180px)] flex flex-col items-center">
+<div class="text-center mb-10 w-full py-12 glass-card rounded-[40px] border-primary/10">
+<p class="text-slate-400 text-xs font-bold mb-4 uppercase tracking-[0.3em]">Guilt-free Balance</p>
+<h2 id="main-balance" class="text-6xl font-bold tracking-tight text-white mb-6">₹0</h2>
+<div class="inline-flex items-center px-4 py-2 bg-primary/10 text-primary rounded-full text-[10px] font-bold border border-primary/20 uppercase tracking-widest">
+<span class="material-symbols-outlined text-[16px] mr-2">auto_awesome</span>
+                    Ready to spend
+                </div>
+</div>
+
+<div class="bg-white/5 border border-white/10 p-6 rounded-3xl mt-8 w-full">
+<h4 class="text-white font-bold text-sm uppercase tracking-widest mb-2">AI Insight</h4>
+<p class="text-xs text-slate-400 leading-relaxed">
+                    This balance is your net spendable income after subtracting fixed costs, goal deductions, and monthly savings. You can use this freely.
+                </p>
+</div>
+</main>
+
+<nav class="absolute bottom-0 left-0 right-0 z-30 px-8 pt-4 pb-12 glass-card border-t border-white/5 rounded-t-[32px]">
+<div class="flex justify-between items-center px-2">
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="dashboard.html">
+<span class="material-symbols-outlined text-[28px]">grid_view</span>
+<span class="text-[10px] font-medium">Dashboard</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="insights.html">
+<span class="material-symbols-outlined text-[28px]">insights</span>
+<span class="text-[10px] font-medium">Insights</span>
+</a>
+<div class="relative -top-6">
+<button class="w-16 h-16 bg-primary text-black rounded-2xl shadow-xl shadow-primary/40 flex items-center justify-center transform active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center space-y-1 text-primary" href="#">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1">account_balance_wallet</span>
+<span class="text-[10px] font-bold uppercase">Wallet</span>
+</a>
+<a class="flex flex-col items-center space-y-1 text-slate-500" href="profile.html">
+<span class="material-symbols-outlined text-[28px]">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</div>
+</nav>
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/20 rounded-full z-40"></div>
+</div>
+</body></html>
