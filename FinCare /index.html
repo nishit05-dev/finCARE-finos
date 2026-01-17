@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinCARE App Launcher</title>
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background: #181811;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #f2cc0d;
+    }
+    .page-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      width: 90%;
+      max-width: 500px;
+    }
+    button {
+      padding: 12px 10px;
+      border: none;
+      border-radius: 12px;
+      background: #f2cc0d;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    iframe {
+      width: 100%;
+      height: 80vh;
+      border: none;
+      margin-top: 20px;
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>FinCARE App Launcher</h1>
+
+  <div class="page-list">
+    <button onclick="openPage('splash.html')">Splash Screen</button>
+    <button onclick="openPage('login.html')">Login</button>
+    <button onclick="openPage('signup.html')">Signup</button>
+    <button onclick="openPage('googleaccount.html')">Google Account</button>
+    <button onclick="openPage('step1.html')">Step 1</button>
+    <button onclick="openPage('step2.html')">Step 2</button>
+    <button onclick="openPage('step3.html')">Step 3</button>
+    <button onclick="openPage('step4.html')">Step 4</button>
+    <button onclick="openPage('step5.html')">Step 5</button>
+    <button onclick="openPage('step6.html')">Step 6</button>
+    <button onclick="openPage('step7.html')">Step 7</button>
+    <button onclick="openPage('dashboard.html')">Dashboard</button>
+    <button onclick="openPage('fixed.html')">Fixed Details</button>
+    <button onclick="openPage('goal.html')">Goal Details</button>
+    <button onclick="openPage('saving.html')">Savings</button>
+    <button onclick="openPage('spendable.html')">Spendable</button>
+    <button onclick="openPage('aisuggestion.html')">AI Suggestion</button>
+    <button onclick="openPage('transaction.html')">Transactions</button>
+    <button onclick="openPage('profile.html')">Profile</button>
+    <button onclick="openPage('insights.html')">Insights</button>
+  </div>
+
+  <iframe id="appFrame" src="" title="FinCARE App"></iframe>
+
+  <script>
+    function openPage(page) {
+      document.getElementById('appFrame').src = page;
+    }
+  </script>
+</body>
+</html>
