@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Step 6: Spending Habits - FinCARE</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDGeRJkrzIjtM51OFu8_58nAlxAof0QK98",
+            authDomain: "fincare-project-4015e.firebaseapp.com",
+            databaseURL: "https://fincare-project-4015e-default-rtdb.firebaseio.com",
+            projectId: "fincare-project-4015e",
+            storageBucket: "fincare-project-4015e.firebasestorage.app",
+            messagingSenderId: "415209492661",
+            appId: "1:415209492661:web:683ea15a1e177fb4c52efc",
+            measurementId: "G-DNG4ZMXG1J"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Security Check
+        onAuthStateChanged(auth, (user) => {
+            if (!user) window.location.href = "login.html";
+        });
+
+        async function saveSpendingHabits() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const nextBtn = document.getElementById('nextBtn');
+            nextBtn.innerText = "Analyzing Patterns...";
+            nextBtn.style.pointerEvents = "none";
+
+            const spendingData = {
+                spendingHabits: {
+                    totalMonthlySpend: parseFloat(document.getElementById('totalSpendInput').value) || 0,
+                    breakdown: {
+                        food: parseInt(document.getElementById('foodIn').value),
+                        clothes: parseInt(document.getElementById('clothesIn').value),
+                        shopping: parseInt(document.getElementById('shopIn').value),
+                        others: parseInt(document.getElementById('otherIn').value)
+                    }
+                },
+                currentStep: 6,
+                lastUpdated: new Date()
+            };
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                await updateDoc(userRef, spendingData);
+                window.location.href = "step7.html";
+            } catch (error) {
+                console.error("Error saving spending habits:", error);
+                alert("Error saving data. Please try again.");
+                nextBtn.innerText = "Next";
+                nextBtn.style.pointerEvents = "auto";
+            }
+        }
+        window.saveSpendingHabits = saveSpendingHabits;
+    </script>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2cc0d",
+                        "background-dark": "#000000",
+                    },
+                    fontFamily: { "display": ["Manrope", "sans-serif"] },
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        body { font-family: 'Manrope', sans-serif; background-color: #000; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #1a1a1a; border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: #f2cc0d; -webkit-appearance: none; margin-top: -9px; box-shadow: 0 0 15px rgba(242, 204, 13, 0.5); border: 3px solid #000; }
+    </style>
+</head>
+<body class="text-white font-display overflow-x-hidden">
+<div class="relative flex min-h-screen w-full flex-col bg-black max-w-md mx-auto shadow-2xl">
+    <div class="flex items-center bg-black/80 p-4 pb-2 justify-between sticky top-0 z-10 backdrop-blur-md border-b border-white/5">
+        <a class="text-white flex size-10 items-center justify-center bg-white/5 rounded-full" href="step5.html">
+            <span class="material-symbols-outlined !text-xl">arrow_back_ios</span>
+        </a>
+        <h2 class="text-white text-sm font-bold uppercase tracking-[0.2em] flex-1 text-center pr-10">Step 6 of 7</h2>
+    </div>
+
+    <div class="flex flex-col gap-2 p-6">
+        <div class="flex justify-between items-end">
+            <span class="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">Setup Progress</span>
+            <span class="text-primary text-xs font-black tracking-tighter">85%</span>
+        </div>
+        <div class="rounded-full bg-white/5 h-1.5 w-full overflow-hidden border border-white/5">
+            <div class="h-full rounded-full bg-primary" style="width: 85.7%;"></div>
+        </div>
+    </div>
+
+    <div class="px-6 pt-2">
+        <h1 class="text-white tracking-tight text-3xl font-extrabold leading-tight">Spending Habits</h1>
+        <p class="text-white/50 text-sm mt-2 font-medium">Define your monthly expenditure for precise AI forecasting.</p>
+    </div>
+
+    <div class="px-6 py-6">
+        <div class="p-6 rounded-2xl bg-white/[0.04] border border-white/10 relative overflow-hidden transition-colors">
+            <div class="absolute top-0 right-0 p-3 opacity-20">
+                <span class="material-symbols-outlined text-4xl text-primary">account_balance_wallet</span>
+            </div>
+            <label class="flex flex-col gap-4">
+                <p class="text-white/40 text-[10px] font-bold uppercase tracking-[0.2em]">Total Monthly Spending</p>
+                <div class="flex items-center gap-3">
+                    <span class="text-primary text-4xl font-light">₹</span>
+                    <input id="totalSpendInput" class="bg-transparent border-none p-0 text-4xl font-extrabold text-white focus:ring-0 outline-none w-full" type="number" value="3450"/>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <form class="flex flex-col gap-4 px-6 pb-32" oninput="foodOut.value = foodIn.value + '%'; clothesOut.value = clothesIn.value + '%'; shopOut.value = shopIn.value + '%'; otherOut.value = otherIn.value + '%'">
+        <div class="flex flex-col gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined !text-xl">restaurant</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-white text-sm font-bold">Food & Dining</span>
+                    </div>
+                </div>
+                <div class="bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <output class="text-primary font-black text-sm" for="foodIn" name="foodOut">35%</output>
+                </div>
+            </div>
+            <input id="foodIn" class="w-full cursor-pointer" max="100" min="0" type="range" value="35"/>
+        </div>
+
+        <div class="flex flex-col gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined !text-xl">checkroom</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-white text-sm font-bold">Clothes & Apparel</span>
+                    </div>
+                </div>
+                <div class="bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <output class="text-primary font-black text-sm" for="clothesIn" name="clothesOut">15%</output>
+                </div>
+            </div>
+            <input id="clothesIn" class="w-full cursor-pointer" max="100" min="0" type="range" value="15"/>
+        </div>
+
+        <div class="flex flex-col gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined !text-xl">shopping_cart</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-white text-sm font-bold">Shopping & Retail</span>
+                    </div>
+                </div>
+                <div class="bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <output class="text-primary font-black text-sm" for="shopIn" name="shopOut">25%</output>
+                </div>
+            </div>
+            <input id="shopIn" class="w-full cursor-pointer" max="100" min="0" type="range" value="25"/>
+        </div>
+
+        <div class="flex flex-col gap-4 p-5 rounded-2xl bg-white/[0.03] border border-white/5">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined !text-xl">more_horiz</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-white text-sm font-bold">Others</span>
+                    </div>
+                </div>
+                <div class="bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <output class="text-primary font-black text-sm" for="otherIn" name="otherOut">25%</output>
+                </div>
+            </div>
+            <input id="otherIn" class="w-full cursor-pointer" max="100" min="0" type="range" value="25"/>
+        </div>
+    </form>
+
+    <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto p-6 bg-gradient-to-t from-black via-black/95 to-transparent pt-10">
+        <button id="nextBtn" onclick="saveSpendingHabits()" class="flex w-full h-16 items-center justify-center rounded-2xl bg-primary text-black text-lg font-black tracking-widest shadow-[0_12px_40px_rgba(242,204,13,0.25)] transition-all">
+            Next
+            <span class="material-symbols-outlined font-bold">arrow_forward</span>
+        </button>
+    </div>
+</div>
+</body>
+</html>
