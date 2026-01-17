@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FinCARE - Financial Monthly Reports</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#f2cc0d",
+                        "background-dark": "#000000",
+                        "surface-dark": "#181711",
+                        "border-dark": "#2a281d",
+                        "muted-gold": "#bab59c"
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            min-height: 100dvh;
+        }
+        .ios-scroll-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .active-icon {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-dark font-display text-white">
+<div class="relative mx-auto h-[844px] w-[390px] overflow-hidden bg-background-dark shadow-2xl border-4 border-[#333] rounded-[3rem] flex flex-col">
+<div class="flex items-center justify-between px-8 pt-4 text-sm font-semibold text-white shrink-0">
+<span>9:41</span>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined !text-[18px]">signal_cellular_alt</span>
+<span class="material-symbols-outlined !text-[18px]">wifi</span>
+<span class="material-symbols-outlined !text-[18px]">battery_full</span>
+</div>
+</div>
+<div class="flex items-center px-6 pt-6 pb-2 shrink-0">
+<a class="p-2 -ml-2 text-primary" href="profile.html">
+<span class="material-symbols-outlined !text-[28px]">chevron_left</span>
+</a>
+<h1 class="text-xl font-bold ml-1">Monthly Reports</h1>
+</div>
+<div class="flex-1 overflow-y-auto ios-scroll-hide px-6 pt-4 pb-32">
+<div class="space-y-4">
+<div class="bg-surface-dark border border-border-dark rounded-3xl p-5 flex flex-col gap-4">
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-bold text-white">October 2023</h2>
+<span class="text-[10px] font-bold bg-primary/20 text-primary px-2 py-1 rounded-full uppercase tracking-wider">New</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Savings</p>
+<p class="text-xl font-bold text-primary">$1,240.00</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Spending</p>
+<p class="text-xl font-bold text-white">$2,850.42</p>
+</div>
+</div>
+<button class="w-full bg-primary text-black font-bold py-3 rounded-2xl active:scale-[0.98] transition-transform">
+                        View Full Report
+                    </button>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-3xl p-5 flex flex-col gap-4 opacity-90">
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-bold text-white">September 2023</h2>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Savings</p>
+<p class="text-xl font-bold text-primary">$980.50</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Spending</p>
+<p class="text-xl font-bold text-white">$3,120.15</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-3 rounded-2xl active:scale-[0.98] transition-transform">
+                        View Full Report
+                    </button>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-3xl p-5 flex flex-col gap-4 opacity-80">
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-bold text-white">August 2023</h2>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Savings</p>
+<p class="text-xl font-bold text-primary">$2,150.00</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Spending</p>
+<p class="text-xl font-bold text-white">$1,940.00</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-3 rounded-2xl active:scale-[0.98] transition-transform">
+                        View Full Report
+                    </button>
+</div>
+<div class="bg-surface-dark border border-border-dark rounded-3xl p-5 flex flex-col gap-4 opacity-70">
+<div class="flex justify-between items-center">
+<h2 class="text-lg font-bold text-white">July 2023</h2>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Savings</p>
+<p class="text-xl font-bold text-primary">$450.25</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs text-muted-gold">Total Spending</p>
+<p class="text-xl font-bold text-white">$4,200.50</p>
+</div>
+</div>
+<button class="w-full border border-primary text-primary font-bold py-3 rounded-2xl active:scale-[0.98] transition-transform">
+                        View Full Report
+                    </button>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 w-full bg-background-dark border-t border-border-dark px-6 pb-8 pt-3 flex justify-between items-center shrink-0">
+<a class="flex flex-col items-center gap-1 text-muted-gold hover:text-primary transition-colors" href="dashboard.html">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary transition-colors" href="insights.html">
+<span class="material-symbols-outlined active-icon">analytics</span>
+<span class="text-[10px]">Insights</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-muted-gold hover:text-primary transition-colors" href="transactions.html">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="text-[10px]">Transactions</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-muted-gold hover:text-primary transition-colors" href="profile.html">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Profile</span>
+</a>
+</div>
+<div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-white/20 rounded-full pointer-events-none"></div>
+</div>
+
+</body></html>
